@@ -52,3 +52,7 @@ pnpm run build
 ## 架构说明（为什么是补丁而非独立 `dsh plugin`）
 
 DSH 有分层红线：feature 插件禁止运行时 import 另一个 feature 插件的值，UI 只能通过 slot 跨包。本功能的拒绝原因必须沿 `approval/request` 瀑布从浏览器传回 Host、并写进审批 seam 自己的 `approval/decided` 事件，因此天然落在核心审批链路内（`user-approval` + `ui-approval`），无法干净地封装为独立插件。若强行做成独立插件，需要重写整个审批面板并与内置 `ui-approval` 抢占 waterfall 顺序，脆弱且会与内置审批面板冲突。
+
+# ⚠注意事项/⚠ Precautions
+
+项目代码未进行人工审计,同时不保证兼容性/The project code has not been manually audited and compatibility cannot be guaranteed
