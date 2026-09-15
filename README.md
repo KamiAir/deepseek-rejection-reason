@@ -16,7 +16,7 @@ Adds an optional rejection reason to DeepSeek Harness tool approvals: users can 
 cd <path-to>/deepseek-harness
 
 # 2. 应用补丁
-git apply <path-to>/rejection-reason-plugin/rejection-reason.patch
+git apply <path-to>/rejection-reason.patch
 
 # 3. 重建（Host + Client 产物）
 pnpm run build
