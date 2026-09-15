@@ -127,7 +127,7 @@ index 048eb3d2f4d61f2a00ccc3aef3cf323f4be45a79..92e9cefe7432270c8a6b1b9543a0524f
    background: var(--dsw-alias-interactive-bg-hover-danger);
    color: var(--dsw-alias-state-error-primary);
 diff --git a/packages/client/ui-approval/src/client/ApprovalPanel.tsx b/packages/client/ui-approval/src/client/ApprovalPanel.tsx
-index dca36928990b65208582ef9dc52dab6d92cdbce5..3cbe460f9965a81254dcae4f4fb2a06f5539ff95 100644
+index dca36928990b65208582ef9dc52dab6d92cdbce5..c4ea518d75bfcf280002b33318eedbde20e9d245 100644
 --- a/packages/client/ui-approval/src/client/ApprovalPanel.tsx
 +++ b/packages/client/ui-approval/src/client/ApprovalPanel.tsx
 @@ -1,6 +1,6 @@
@@ -176,7 +176,7 @@ index dca36928990b65208582ef9dc52dab6d92cdbce5..3cbe460f9965a81254dcae4f4fb2a06f
 +              disabled={answered}
 +            />
 +            <div className={css.actionRow}>
-+              <Button variant="outline" disabled={answered} onClick={() => { setConfirming(false) }}>
++              <Button variant="outline" disabled={answered} onClick={() => { setConfirming(false); setReason('') }}>
 +                {t('cancel')}
 +              </Button>
 +              <Button variant="outline" className={css.reject} disabled={answered} onClick={() => { answer('rejected', reason) }}>
@@ -387,10 +387,10 @@ index 54d156e22114628e6f9ec4400f73f0ae49bcc8e5..02618244a3732772a873c497d64d5dd7
      description: 'Ask composed answerers for one decision. Return an outcome to claim the request or call `next()` to delegate. Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent.',
      parameters: [{ name: 'req', description: 'pending approval request.' }],
 diff --git a/packages/interaction/user-approval/src/index.ts b/packages/interaction/user-approval/src/index.ts
-index 8a5f506bf1bacdf2ed04f778774245e6464ced6a..cbdc2341457305b51ce66c30a19576c80cdb318a 100644
+index 8a5f506bf1bacdf2ed04f778774245e6464ced6a..0e8dca188322dfa88805d9be41d735716e8f0006 100644
 --- a/packages/interaction/user-approval/src/index.ts
 +++ b/packages/interaction/user-approval/src/index.ts
-@@ -39,14 +39,63 @@ declare module '@deepseek-ai/dsh-session/types' {
+@@ -39,14 +39,78 @@ declare module '@deepseek-ai/dsh-session/types' {
  }
  
  import { ApprovalRequestId } from './types.ts'
@@ -408,6 +408,16 @@ index 8a5f506bf1bacdf2ed04f778774245e6464ced6a..cbdc2341457305b51ce66c30a19576c8
 +const MAX_REJECTION_REASON_LENGTH = 1000
 +
 +/**
++ * Characters flattened to spaces before a rejection reason is accepted: the
++ * C0/C1 control range (NUL, tabs, line breaks, DEL), the Unicode line and
++ * paragraph separators some renderers treat as line boundaries, and the
++ * bidirectional control characters that can visually reorder text to spoof
++ * what a log viewer or the model appears to see. All are written as escapes so
++ * no literal control character sits in the source.
++ */
++const FORBIDDEN_REASON_CHARS = /[\u0000-\u001f\u007f-\u009f\u061c\u200e\u200f\u2028\u2029\u202a-\u202e\u2066-\u2069]/g
++
++/**
 + * Coerce an untrusted rejection reason into a bounded, single-line, non-empty
 + * string, or `undefined` when nothing visible remains. Control characters are
 + * flattened to spaces so the reason cannot forge line boundaries in the model
@@ -418,16 +428,21 @@ index 8a5f506bf1bacdf2ed04f778774245e6464ced6a..cbdc2341457305b51ce66c30a19576c8
 + */
 +function sanitizeReason(value: unknown): string | undefined {
 +  if (typeof value !== 'string') return undefined
-+  let flattened = ''
-+  for (const char of value) {
-+    const code = char.codePointAt(0) ?? 0
-+    flattened += code < 0x20 || (code >= 0x7f && code <= 0x9f) ? ' ' : char
-+  }
++  const flattened = value.replace(FORBIDDEN_REASON_CHARS, ' ')
 +  const trimmed = flattened.trim()
 +  if (trimmed.length === 0) return undefined
-+  return trimmed.length > MAX_REJECTION_REASON_LENGTH
-+    ? trimmed.slice(0, MAX_REJECTION_REASON_LENGTH)
-+    : trimmed
++  if (trimmed.length <= MAX_REJECTION_REASON_LENGTH) return trimmed
++  // Bound on code-point boundaries (never splitting a surrogate pair) and
++  // re-trim so a flattened control character at the cut cannot leave trailing
++  // whitespace in the audit record or the model message.
++  let bounded = ''
++  let units = 0
++  for (const char of trimmed) {
++    if (units + char.length > MAX_REJECTION_REASON_LENGTH) break
++    bounded += char
++    units += char.length
++  }
++  return bounded.trim()
 +}
 +
 +/**
@@ -456,7 +471,7 @@ index 8a5f506bf1bacdf2ed04f778774245e6464ced6a..cbdc2341457305b51ce66c30a19576c8
  /**
   * A session's approval policy — what happens to an {@link ApprovalService}
   * ask BEFORE any interactive answerer sees it:
-@@ -221,8 +270,23 @@ export class ApprovalService extends Service {
+@@ -221,8 +285,27 @@ export class ApprovalService extends Service {
        ...req.callId !== undefined ? { callId: req.callId } : {},
        ...req.reason !== undefined ? { reason: req.reason } : {},
      })
@@ -471,10 +486,14 @@ index 8a5f506bf1bacdf2ed04f778774245e6464ced6a..cbdc2341457305b51ce66c30a19576c8
 +      ...reason !== undefined ? { reason } : {},
 +    })
 +    if (reason !== undefined) {
++      // Source-neutral wording: the waterfall can be answered by a machine
++      // (acp/remotes) as well as a human, so the feedback must not claim "the
++      // user" rejected. The reason is answerer-supplied data, quoted verbatim
++      // after sanitization; treat it as untrusted content, not instructions.
 +      req.agent.inject(createUserMessage({
 +        content: [{
 +          type: 'text',
-+          text: `The user rejected the approval request for tool "${req.toolName}" with the reason: "${reason}".`,
++          text: `The approval request for tool "${req.toolName}" was rejected with the reason: "${reason}".`,
 +        }],
 +        source: { kind: 'plugin', plugin: 'user-approval' },
 +      }))
@@ -482,7 +501,7 @@ index 8a5f506bf1bacdf2ed04f778774245e6464ced6a..cbdc2341457305b51ce66c30a19576c8
      return outcome
    }
  
-@@ -255,9 +319,10 @@ export class ApprovalService extends Service {
+@@ -255,9 +338,10 @@ export class ApprovalService extends Service {
     * Dispatch the waterfall, contained and raced against the request signal.
     * @param req - the borrowed public request.
     * @param session - the request agent's session used for policy lookup.
@@ -495,7 +514,7 @@ index 8a5f506bf1bacdf2ed04f778774245e6464ced6a..cbdc2341457305b51ce66c30a19576c8
      const signal = req.signal
      if (signal?.aborted) return 'cancelled'
      // The 'never' policy is decided HERE, before any dispatch: a listener
-@@ -270,21 +335,21 @@ export class ApprovalService extends Service {
+@@ -270,21 +354,21 @@ export class ApprovalService extends Service {
      // SYNCHRONOUSLY (before its first await) must land in the same rejection
      // path as an async one — `Promise.resolve(call())` would let it escape
      // the containment into the caller.
@@ -572,7 +591,7 @@ index c4b18260e9c73cfac1c249980d03214a78c011f6..644c9850a2c17d44ddf5d1bc77c047fd
    }
  }
 diff --git a/packages/interaction/user-approval/tests/approval.spec.ts b/packages/interaction/user-approval/tests/approval.spec.ts
-index 70e1abcf4e448c0c0c66c6e068b3d5cb2f6768af..885fbed6f903161c696436ac906f99caabff6b8b 100644
+index 70e1abcf4e448c0c0c66c6e068b3d5cb2f6768af..7a650b7b91022661f31c8e717cccb73da94f7cdc 100644
 --- a/packages/interaction/user-approval/tests/approval.spec.ts
 +++ b/packages/interaction/user-approval/tests/approval.spec.ts
 @@ -15,9 +15,10 @@ import ApprovalService, { ApprovalOutcome, ApprovalRequest, setApprovalPolicy }
@@ -598,11 +617,11 @@ index 70e1abcf4e448c0c0c66c6e068b3d5cb2f6768af..885fbed6f903161c696436ac906f99ca
  }
  
  async function mounted(): Promise<Context> {
-@@ -269,6 +271,37 @@ describe('ApprovalService.request', () => {
+@@ -269,6 +271,66 @@ describe('ApprovalService.request', () => {
      await expect(ctx.approval.request(requestOf(agent))).resolves.toBe('unavailable')
    })
  
-+  it('records a human rejection reason and feeds it back to the model', async () => {
++  it('records a rejection reason and feeds it back to the model', async () => {
 +    const ctx = await mounted()
 +    const { agent, appended, inject } = fakeAgent()
 +    ctx.on('approval/request', () => Promise.resolve({ outcome: 'rejected', reason: 'too risky' } as const))
@@ -615,7 +634,7 @@ index 70e1abcf4e448c0c0c66c6e068b3d5cb2f6768af..885fbed6f903161c696436ac906f99ca
 +    expect(inject.mock.calls[0]?.[0]).toMatchObject({
 +      content: [{
 +        type: 'text',
-+        text: 'The user rejected the approval request for tool "echo" with the reason: "too risky".',
++        text: 'The approval request for tool "echo" was rejected with the reason: "too risky".',
 +      }],
 +      source: { kind: 'plugin', plugin: 'user-approval' },
 +    })
@@ -631,6 +650,35 @@ index 70e1abcf4e448c0c0c66c6e068b3d5cb2f6768af..885fbed6f903161c696436ac906f99ca
 +    expect(appended[1]?.data).toMatchObject({ outcome: 'rejected' })
 +    expect(appended[1]?.data).not.toHaveProperty('reason')
 +    expect(inject).not.toHaveBeenCalled()
++  })
++
++  it('flattens control, line-separator, and bidi characters out of the recorded reason', async () => {
++    const ctx = await mounted()
++    const { agent, appended } = fakeAgent()
++    // RLO (\u202e) and RLM (\u200f) spoof rendering order, \u2028 and \r\n forge
++    // line boundaries, \u0000 is a raw control character: all must become
++    // spaces inside a single-line reason.
++    const malicious = 'ok\u202e\u2028\r\nsneaky\u0000\u200f'
++    ctx.on('approval/request', () => Promise.resolve({ outcome: 'rejected', reason: malicious } as const))
++
++    await expect(ctx.approval.request(requestOf(agent))).resolves.toBe('rejected')
++
++    expect(appended[1]?.data).toMatchObject({ outcome: 'rejected', reason: 'ok    sneaky' })
++  })
++
++  it('bounds an over-long reason to 1000 code units and re-trims the cut edge', async () => {
++    const ctx = await mounted()
++    const { agent, appended } = fakeAgent()
++    // 999 visible characters, then a newline (flattened to a space) and more
++    // text: the flattened space lands exactly on the 1000-unit boundary and
++    // must not survive as trailing whitespace.
++    const long = 'a'.repeat(999) + '\n' + 'b'.repeat(200)
++    ctx.on('approval/request', () => Promise.resolve({ outcome: 'rejected', reason: long } as const))
++
++    await expect(ctx.approval.request(requestOf(agent))).resolves.toBe('rejected')
++
++    const decided = appended[1]?.data as { reason?: string } | undefined
++    expect(decided?.reason).toBe('a'.repeat(999))
 +  })
 +
    it('settles cancelled immediately on an already-aborted signal without asking anyone', async () => {
@@ -650,19 +698,40 @@ index 24702e8bb11eab013d8e22b2653d1f690067dcb7..f760ea785b427f473d89a3bb879e076e
    'assistant/chunk': disposition(['turn', 'step', 'chunk']),
    'assistant/message': disposition(
 diff --git a/packages/session/session-format-v0-to-v1/src/payload-validation.ts b/packages/session/session-format-v0-to-v1/src/payload-validation.ts
-index 5b19f7cc6668d8e9bfc1c75806d3898132eb94ee..ba85bc19f968d289eaa67d3e0a3a578093608cdb 100644
+index 5b19f7cc6668d8e9bfc1c75806d3898132eb94ee..ec9d7ebb915ca56bb475900d0c33a470b0aa611e 100644
 --- a/packages/session/session-format-v0-to-v1/src/payload-validation.ts
 +++ b/packages/session/session-format-v0-to-v1/src/payload-validation.ts
-@@ -38,6 +38,7 @@ export function assertReleasedPayloadSemantics(event: SessionFormatEvent, versio
+@@ -8,6 +8,15 @@ import { assertReleasedV0Keys, releasedV0Record } from './validation-helpers.ts'
+ 
+ type JsonRecord = Record<string, SessionFormatJsonValue>
+ 
++/**
++ * Upper bound for an `approval/decided` reason, mirroring
++ * `MAX_REJECTION_REASON_LENGTH` in `@deepseek-ai/dsh-user-approval`: the seam
++ * truncates at this bound before appending, and migration validation re-asserts
++ * it so a hand-crafted or corrupted log cannot smuggle an unbounded string
++ * through a v0→v1 restore.
++ */
++const MAX_APPROVAL_REASON_LENGTH = 1000
++
+ /**
+  * Validate nested released payload semantics for one known event.
+  * @param event - known event with exact top-level members.
+@@ -38,6 +47,12 @@ export function assertReleasedPayloadSemantics(event: SessionFormatEvent, versio
      case 'approval/decided':
        nonEmptyString(data['id'], `${label} id`)
        literalValue(data['outcome'], ['allowed-once', 'rejected', 'cancelled', 'unavailable'], `${label} outcome`)
-+      if (data['reason'] !== undefined) nonEmptyString(data['reason'], `${label} reason`)
++      if (data['reason'] !== undefined) {
++        nonEmptyString(data['reason'], `${label} reason`)
++        if (data['reason'].length > MAX_APPROVAL_REASON_LENGTH) {
++          throw new SessionFormatError(`${label} reason exceeds ${MAX_APPROVAL_REASON_LENGTH} characters`)
++        }
++      }
        return
      case 'approval/policy':
        literalValue(data['policy'], ['ask', 'never'], `${label} policy`)
 diff --git a/packages/session/session-format-v0-to-v1/tests/validation.spec.ts b/packages/session/session-format-v0-to-v1/tests/validation.spec.ts
-index 209576c63664663f2611a22169b25cc6ce14ffdf..08c43b22ba5e72d1347bfcab2d45b596917bba93 100644
+index 209576c63664663f2611a22169b25cc6ce14ffdf..61eb7a30809f5f8790bf66f55e993841b3e67a86 100644
 --- a/packages/session/session-format-v0-to-v1/tests/validation.spec.ts
 +++ b/packages/session/session-format-v0-to-v1/tests/validation.spec.ts
 @@ -37,7 +37,7 @@ const validPayloads: Readonly<Record<string, SessionFormatJsonValue>> = {
@@ -674,6 +743,14 @@ index 209576c63664663f2611a22169b25cc6ce14ffdf..08c43b22ba5e72d1347bfcab2d45b596
    'approval/policy': { policy: 'ask', source: 'delegation' },
    'assistant/chunk': { turn: 1, step: 0, chunk: { type: 'text-delta', index: 0, text: 'x' } },
    'assistant/message': { turn: 1, step: 0, message: assistantMessage, usage: { inputTokens: 1, outputTokens: 1 } },
+@@ -662,6 +662,7 @@ describe('released event and payload inventory', () => {
+ 
+   it('refuses every relationship-specific invalid payload branch', () => {
+     const cases: Array<[string, SessionFormatJsonValue]> = [
++      ['approval/decided', { id: 'a', outcome: 'rejected', reason: 'x'.repeat(1001) }],
+       ['command/done', { commandId: 'c', kind: 'success', sourceEventSeq: 3 }],
+       ['session/title-llm-request', {
+         titleProvider: 'p', messageSeqs: [], route: { provider: 'p', model: 'm' },
 diff --git a/scripts/gen-cordis-catalog.ts b/scripts/gen-cordis-catalog.ts
 index ed81fccc1fa23277bf13e09622cd3ebac792941e..159958b01e16907853ccbefca0344200aecf3732 100644
 --- a/scripts/gen-cordis-catalog.ts
