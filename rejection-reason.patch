@@ -1,0 +1,691 @@
+diff --git a/docs/event-producer-consumer.i18n.yaml b/docs/event-producer-consumer.i18n.yaml
+index 0bd8fecb7c366f30f635f41c6f658247299ef325..1e1cc6978af4ed45beade0d0a4e65f3c93b02260 100644
+--- a/docs/event-producer-consumer.i18n.yaml
++++ b/docs/event-producer-consumer.i18n.yaml
+@@ -2,5 +2,5 @@
+ # side as of the last confirmed-consistent state. Both languages carry equal authority;
+ # after editing either side, bring the other along and re-record with:
+ #   pnpm run verify-translation-pairing --write docs/event-producer-consumer.md
+-event-producer-consumer.md: 31bcff64bdbd4caa24124f196beef86233f22538
+-event-producer-consumer.zh.md: 239149009d0ade0fa2869989e32d2c41fad46c83
++event-producer-consumer.md: 0c963630111a566573ab9857c889634cc3329d0b
++event-producer-consumer.zh.md: f3afde52f28b3ba955d404b5259432addf0e75c4
+diff --git a/docs/event-producer-consumer.md b/docs/event-producer-consumer.md
+index 31bcff64bdbd4caa24124f196beef86233f22538..0c963630111a566573ab9857c889634cc3329d0b 100644
+--- a/docs/event-producer-consumer.md
++++ b/docs/event-producer-consumer.md
+@@ -27,7 +27,7 @@ This matrix shows which packages dispatch each harness-owned event and which pac
+ | `api-session/error` | `emit` | [`packages/api/session-controller/src/types.ts:608`](../packages/api/session-controller/src/types.ts) | `session-controller` (`emit`) | `remotes` |
+ | `api-session/removed` | `emit` | [`packages/api/session-controller/src/types.ts:587`](../packages/api/session-controller/src/types.ts) | `session-controller` (`emit`) | `remotes` |
+ | `api-session/status` | `emit` | [`packages/api/session-controller/src/types.ts:594`](../packages/api/session-controller/src/types.ts) | `session-controller` (`emit`) | `remotes` |
+-| `approval/request` | `waterfall` | [`packages/interaction/user-approval/src/types.ts:85`](../packages/interaction/user-approval/src/types.ts) | [`user-approval`](../packages/interaction/user-approval) (`waterfall`) | [`acp`](../packages/acp/acp), `remotes` |
++| `approval/request` | `waterfall` | [`packages/interaction/user-approval/src/types.ts:107`](../packages/interaction/user-approval/src/types.ts) | [`user-approval`](../packages/interaction/user-approval) (`waterfall`) | [`acp`](../packages/acp/acp), `remotes` |
+ | `authorization/settled` | `emit` | [`packages/credentials/authorization/src/index.ts:57`](../packages/credentials/authorization/src/index.ts) | [`authorization`](../packages/credentials/authorization) (`events.dispatch`) | [`authorization`](../packages/credentials/authorization) |
+ | `commands/change` | `emit` | [`packages/interaction/commands/src/types.ts:89`](../packages/interaction/commands/src/types.ts) | [`commands`](../packages/interaction/commands) (`events.dispatch`) | `remotes` |
+ | `cordis/dynamic-package` | `emit` | [`packages/extensions/cordis-host-runner/src/types.ts:380`](../packages/extensions/cordis-host-runner/src/types.ts) | [`cordis-host-runner`](../packages/extensions/cordis-host-runner) (`emit`) | `remotes` |
+diff --git a/docs/event-producer-consumer.zh.md b/docs/event-producer-consumer.zh.md
+index 239149009d0ade0fa2869989e32d2c41fad46c83..f3afde52f28b3ba955d404b5259432addf0e75c4 100644
+--- a/docs/event-producer-consumer.zh.md
++++ b/docs/event-producer-consumer.zh.md
+@@ -29,7 +29,7 @@
+ | `api-session/error` | `emit` | [`packages/api/session-controller/src/types.ts:608`](../packages/api/session-controller/src/types.ts) | `session-controller` (`emit`) | `remotes` |
+ | `api-session/removed` | `emit` | [`packages/api/session-controller/src/types.ts:587`](../packages/api/session-controller/src/types.ts) | `session-controller` (`emit`) | `remotes` |
+ | `api-session/status` | `emit` | [`packages/api/session-controller/src/types.ts:594`](../packages/api/session-controller/src/types.ts) | `session-controller` (`emit`) | `remotes` |
+-| `approval/request` | `waterfall` | [`packages/interaction/user-approval/src/types.ts:85`](../packages/interaction/user-approval/src/types.ts) | [`user-approval`](../packages/interaction/user-approval) (`waterfall`) | [`acp`](../packages/acp/acp), `remotes` |
++| `approval/request` | `waterfall` | [`packages/interaction/user-approval/src/types.ts:107`](../packages/interaction/user-approval/src/types.ts) | [`user-approval`](../packages/interaction/user-approval) (`waterfall`) | [`acp`](../packages/acp/acp), `remotes` |
+ | `authorization/settled` | `emit` | [`packages/credentials/authorization/src/index.ts:57`](../packages/credentials/authorization/src/index.ts) | [`authorization`](../packages/credentials/authorization) (`events.dispatch`) | [`authorization`](../packages/credentials/authorization) |
+ | `commands/change` | `emit` | [`packages/interaction/commands/src/types.ts:89`](../packages/interaction/commands/src/types.ts) | [`commands`](../packages/interaction/commands) (`events.dispatch`) | `remotes` |
+ | `cordis/dynamic-package` | `emit` | [`packages/extensions/cordis-host-runner/src/types.ts:380`](../packages/extensions/cordis-host-runner/src/types.ts) | [`cordis-host-runner`](../packages/extensions/cordis-host-runner) (`emit`) | `remotes` |
+diff --git a/docs/persistence-catalog.md b/docs/persistence-catalog.md
+index 7d6c9649628596b04dbe1d75c564a7f5965be940..4d43c500af23540583f115b5625fde5b5582d2f0 100644
+--- a/docs/persistence-catalog.md
++++ b/docs/persistence-catalog.md
+@@ -153,7 +153,7 @@ Source: [`packages/preset/agent-presets/src/session.ts:28`](../packages/preset/a
+ 
+ Types: [ToolCallId](subsystems/core.md)
+ 
+-Source: [`packages/interaction/user-approval/src/types.ts:44`](../packages/interaction/user-approval/src/types.ts)
++Source: [`packages/interaction/user-approval/src/types.ts:61`](../packages/interaction/user-approval/src/types.ts)
+ 
+ <a id="approvaldecided--log-only"></a>
+ 
+@@ -168,10 +168,15 @@ Source: [`packages/interaction/user-approval/src/types.ts:44`](../packages/inter
+ 'approval/decided': {
+   id: ApprovalRequestId
+   outcome: ApprovalOutcome
++  /**
++   * Optional non-empty reason the human supplied with an explicit
++   * `'rejected'` outcome; absent for non-human or unexplained rejections.
++   */
++  reason?: string
+ }
+ ```
+ 
+-Source: [`packages/interaction/user-approval/src/types.ts:55`](../packages/interaction/user-approval/src/types.ts)
++Source: [`packages/interaction/user-approval/src/types.ts:72`](../packages/interaction/user-approval/src/types.ts)
+ 
+ <a id="approvalpolicy--log-only"></a>
+ 
+diff --git a/docs/subsystems/approval.i18n.yaml b/docs/subsystems/approval.i18n.yaml
+index 9f505f4a5b09c37c42f0e0030e80babc7466758f..2200076b30ef798282319b69b74aa39f50be2ece 100644
+--- a/docs/subsystems/approval.i18n.yaml
++++ b/docs/subsystems/approval.i18n.yaml
+@@ -2,5 +2,5 @@
+ # side as of the last confirmed-consistent state. Both languages carry equal authority;
+ # after editing either side, bring the other along and re-record with:
+ #   pnpm run verify-translation-pairing --write docs/subsystems/approval.md
+-approval.md: 656325aa446321253817be3ffeaef658a7c975c4
+-approval.zh.md: a22aec2ef23fdf4809a73e1bc8509eab2679742f
++approval.md: e6b5a5fcafdf8bbee9925123260114f4381f7f2b
++approval.zh.md: 32846a93456651588f0c7dc79b4f8d8e5e5d2515
+diff --git a/docs/subsystems/approval.md b/docs/subsystems/approval.md
+index 656325aa446321253817be3ffeaef658a7c975c4..e6b5a5fcafdf8bbee9925123260114f4381f7f2b 100644
+--- a/docs/subsystems/approval.md
++++ b/docs/subsystems/approval.md
+@@ -161,7 +161,7 @@ Ask composed answerers for one decision. Return an outcome to claim the request
+  * @param req - pending approval request.
+  * @mode waterfall
+  */
+-'approval/request'( this: Scoped<Agent>, req: ApprovalRequestEvent, next: () => Promise<ApprovalOutcome>, ): Promise<ApprovalOutcome>
++'approval/request'( this: Scoped<Agent>, req: ApprovalRequestEvent, next: () => Promise<ApprovalAnswer>, ): Promise<ApprovalAnswer>
+ ```
+ 
+ Types: [Agent](core.md) · [Scoped](scope.md)
+diff --git a/docs/subsystems/approval.zh.md b/docs/subsystems/approval.zh.md
+index a22aec2ef23fdf4809a73e1bc8509eab2679742f..32846a93456651588f0c7dc79b4f8d8e5e5d2515 100644
+--- a/docs/subsystems/approval.zh.md
++++ b/docs/subsystems/approval.zh.md
+@@ -161,7 +161,7 @@ Ask composed answerers for one decision. Return an outcome to claim the request
+  * @param req - pending approval request.
+  * @mode waterfall
+  */
+-'approval/request'( this: Scoped<Agent>, req: ApprovalRequestEvent, next: () => Promise<ApprovalOutcome>, ): Promise<ApprovalOutcome>
++'approval/request'( this: Scoped<Agent>, req: ApprovalRequestEvent, next: () => Promise<ApprovalAnswer>, ): Promise<ApprovalAnswer>
+ ```
+ 
+ Types: [Agent](core.zh.md) · [Scoped](scope.zh.md)
+diff --git a/packages/client/ui-approval/src/client/ApprovalPanel.module.css b/packages/client/ui-approval/src/client/ApprovalPanel.module.css
+index 048eb3d2f4d61f2a00ccc3aef3cf323f4be45a79..92e9cefe7432270c8a6b1b9543a0524f9adb0690 100644
+--- a/packages/client/ui-approval/src/client/ApprovalPanel.module.css
++++ b/packages/client/ui-approval/src/client/ApprovalPanel.module.css
+@@ -68,6 +68,17 @@
+   padding: 14px 16px;
+ }
+ 
++.reasonRow {
++  display: flex;
++  flex-direction: column;
++  gap: 8px;
++  padding: 0 16px;
++}
++
++.reasonRow .actionRow {
++  padding: 0 0 14px;
++}
++
+ .reject:hover:not(:disabled) {
+   background: var(--dsw-alias-interactive-bg-hover-danger);
+   color: var(--dsw-alias-state-error-primary);
+diff --git a/packages/client/ui-approval/src/client/ApprovalPanel.tsx b/packages/client/ui-approval/src/client/ApprovalPanel.tsx
+index dca36928990b65208582ef9dc52dab6d92cdbce5..3cbe460f9965a81254dcae4f4fb2a06f5539ff95 100644
+--- a/packages/client/ui-approval/src/client/ApprovalPanel.tsx
++++ b/packages/client/ui-approval/src/client/ApprovalPanel.tsx
+@@ -1,6 +1,6 @@
+ /** Composer takeover for one pending approval waterfall. */
+ import { useState, type ReactNode } from 'react'
+-import { Button } from '@deepseek-ai/dsh-client-ui-primitives'
++import { Button, Input } from '@deepseek-ai/dsh-client-ui-primitives'
+ import type { ApprovalComposerProps, PendingApproval } from './contract/slots.ts'
+ import css from './ApprovalPanel.module.css'
+ 
+@@ -23,9 +23,11 @@ function ApprovalFlow({ pending, detail, t }: {
+   t: ApprovalComposerProps['t']
+ }) {
+   const [answered, setAnswered] = useState(false)
+-  const answer = (outcome: 'allowed-once' | 'rejected'): void => {
++  const [confirming, setConfirming] = useState(false)
++  const [reason, setReason] = useState('')
++  const answer = (outcome: 'allowed-once' | 'rejected', rejectionReason?: string): void => {
+     setAnswered(true)
+-    void pending.answer(outcome).catch(() => { setAnswered(false) })
++    void pending.answer(outcome, rejectionReason).catch(() => { setAnswered(false) })
+   }
+   return (
+     <div className={css.root} data-approval-key={pending.key}>
+@@ -41,14 +43,36 @@ function ApprovalFlow({ pending, detail, t }: {
+           <div className={css.headline}>{pending.reason ?? t('escalation', { toolName: pending.toolName })}</div>
+           {detail !== null && <div className={css.command}>{detail}</div>}
+         </div>
+-        <div className={css.actionRow}>
+-          <Button variant="outline" className={css.reject} disabled={answered} onClick={() => { answer('rejected') }}>
+-            {t('reject')}
+-          </Button>
+-          <Button variant="primary" disabled={answered} onClick={() => { answer('allowed-once') }}>
+-            {t('allowOnce')}
+-          </Button>
+-        </div>
++        {confirming ? (
++          <div className={css.reasonRow}>
++            <Input
++              autoFocus
++              maxLength={1000}
++              value={reason}
++              onChange={event => { setReason(event.target.value) }}
++              placeholder={t('reason.placeholder')}
++              aria-label={t('reason.aria')}
++              disabled={answered}
++            />
++            <div className={css.actionRow}>
++              <Button variant="outline" disabled={answered} onClick={() => { setConfirming(false) }}>
++                {t('cancel')}
++              </Button>
++              <Button variant="outline" className={css.reject} disabled={answered} onClick={() => { answer('rejected', reason) }}>
++                {t('confirmReject')}
++              </Button>
++            </div>
++          </div>
++        ) : (
++          <div className={css.actionRow}>
++            <Button variant="outline" className={css.reject} disabled={answered} onClick={() => { setConfirming(true) }}>
++              {t('reject')}
++            </Button>
++            <Button variant="primary" disabled={answered} onClick={() => { answer('allowed-once') }}>
++              {t('allowOnce')}
++            </Button>
++          </div>
++        )}
+       </div>
+     </div>
+   )
+diff --git a/packages/client/ui-approval/src/client/contract/slots.ts b/packages/client/ui-approval/src/client/contract/slots.ts
+index 99296e0c921b8c23cb4f91a44eae10530c722841..975d8591a884f032eaea785147bc75f421d8f507 100644
+--- a/packages/client/ui-approval/src/client/contract/slots.ts
++++ b/packages/client/ui-approval/src/client/contract/slots.ts
+@@ -63,6 +63,15 @@ export interface ApprovalPresentationRequest {
+ /** Decisions this interactive Client presentation can return. */
+ export type ApprovalDecision = 'allowed-once' | 'rejected'
+ 
++/** A rejection enriched with the optional reason the user typed. */
++export interface ApprovalRejection {
++  readonly outcome: 'rejected'
++  readonly reason?: string
++}
++
++/** Answers this Client presentation may resolve the Host waterfall with. */
++export type ApprovalAnswer = ApprovalDecision | ApprovalRejection
++
+ let nextApprovalKey = 0
+ 
+ /** One answerable Client presentation of a pending Host waterfall. */
+@@ -78,9 +87,9 @@ export class PendingApproval {
+   /** Human-readable reason supplied by the asker. */
+   readonly reason: string | undefined
+   /** Result returned by the Remote Event listener to the Host waterfall. */
+-  readonly result: Promise<ApprovalDecision>
++  readonly result: Promise<ApprovalAnswer>
+ 
+-  readonly #resolve: (outcome: ApprovalDecision) => void
++  readonly #resolve: (outcome: ApprovalAnswer) => void
+   readonly #reject: (reason: unknown) => void
+   readonly #signal: AbortSignal | undefined
+   readonly #onAbort: (() => void) | undefined
+@@ -98,7 +107,7 @@ export class PendingApproval {
+     this.toolName = request.toolName
+     this.callId = request.callId
+     this.reason = request.reason
+-    const completion = Promise.withResolvers<ApprovalDecision>()
++    const completion = Promise.withResolvers<ApprovalAnswer>()
+     this.result = completion.promise
+     this.#resolve = completion.resolve
+     this.#reject = completion.reject
+@@ -116,12 +125,19 @@ export class PendingApproval {
+   }
+ 
+   /**
+-   * Resolve the Host waterfall with the user's decision.
++   * Resolve the Host waterfall with the user's decision, optionally carrying
++   * the non-empty reason they typed alongside a rejection.
+    * @param outcome - supported interactive decision.
++   * @param reason - optional human-readable rejection reason (blank is dropped).
+    */
+-  answer(outcome: ApprovalDecision): Promise<void> {
++  answer(outcome: ApprovalDecision, reason?: string): Promise<void> {
+     return settlePendingComposer(() => {
+-      this.finish(() => { this.#resolve(outcome) })
++      this.finish(() => {
++        const trimmed = reason?.trim()
++        this.#resolve(outcome === 'rejected' && trimmed !== undefined && trimmed.length > 0
++          ? { outcome: 'rejected' as const, reason: trimmed }
++          : outcome)
++      })
+     }, 'pending approval settlement failed')
+   }
+ 
+diff --git a/packages/client/ui-approval/src/client/index.ts b/packages/client/ui-approval/src/client/index.ts
+index cc044f4fc1b8af851f1211e98e0125cbd9fffc9a..00fe557ff0ef82446ca4622e2226cdfe2e4d1089 100644
+--- a/packages/client/ui-approval/src/client/index.ts
++++ b/packages/client/ui-approval/src/client/index.ts
+@@ -12,10 +12,12 @@ import { PendingApproval } from './contract/slots.ts'
+ import { en, zh } from './locales.ts'
+ 
+ export type {
++  ApprovalAnswer,
+   ApprovalComposerProps,
+   ApprovalDecision,
+   ApprovalDetailOwnerProps,
+   ApprovalPresentationRequest,
++  ApprovalRejection,
+   PendingApproval,
+ } from './contract/slots.ts'
+ export type { ApprovalKey } from './locales.ts'
+diff --git a/packages/client/ui-approval/src/client/locales.ts b/packages/client/ui-approval/src/client/locales.ts
+index e28f2ce74adba4f5957139ddcfbbaaa95fe9f571..50c4e9ebc70d67e64f61861893939f259ee816bc 100644
+--- a/packages/client/ui-approval/src/client/locales.ts
++++ b/packages/client/ui-approval/src/client/locales.ts
+@@ -7,6 +7,10 @@ export const zh = {
+   escalation: '工具 {toolName} 请求越权执行',
+   reject: '拒绝',
+   allowOnce: '允许一次',
++  'reason.placeholder': '拒绝原因（可选）',
++  'reason.aria': '拒绝原因',
++  confirmReject: '确认拒绝',
++  cancel: '取消',
+ } satisfies Record<string, string>
+ 
+ /** Approval dictionary key union. */
+@@ -19,4 +23,8 @@ export const en = {
+   escalation: 'Tool {toolName} requests privileged execution',
+   reject: 'Reject',
+   allowOnce: 'Allow once',
++  'reason.placeholder': 'Reason for rejection (optional)',
++  'reason.aria': 'Rejection reason',
++  confirmReject: 'Confirm rejection',
++  cancel: 'Cancel',
+ } satisfies Record<ApprovalKey, string>
+diff --git a/packages/client/ui-approval/tests/ui-approval.client.spec.tsx b/packages/client/ui-approval/tests/ui-approval.client.spec.tsx
+index 8bb32f5ebee123fd667ccf675e770c5cd54a12ca..879950b6240a74dfe68d5962a873a2329993f198 100644
+--- a/packages/client/ui-approval/tests/ui-approval.client.spec.tsx
++++ b/packages/client/ui-approval/tests/ui-approval.client.spec.tsx
+@@ -138,6 +138,16 @@ describe('PendingApproval', () => {
+     await expect(pending.answer('rejected')).rejects.toThrow(/already settled/)
+   })
+ 
++  it('carries a non-empty rejection reason and drops a blank one', async () => {
++    const withReason = new PendingApproval(id('s1'), { toolName: 'bash' })
++    await withReason.answer('rejected', '  no  ')
++    await expect(withReason.result).resolves.toEqual({ outcome: 'rejected', reason: 'no' })
++
++    const blankReason = new PendingApproval(id('s1'), { toolName: 'bash' })
++    await blankReason.answer('rejected', '   ')
++    await expect(blankReason.result).resolves.toBe('rejected')
++  })
++
+   it('rejects with an already-aborted signal reason', async () => {
+     const controller = new AbortController()
+     const reason = new Error('host cancelled')
+@@ -314,6 +324,10 @@ function panelProps(
+     escalation: `Tool ${pending.toolName} asks`,
+     reject: 'Reject',
+     allowOnce: 'Allow once',
++    confirmReject: 'Confirm rejection',
++    cancel: 'Cancel',
++    'reason.placeholder': 'Reason for rejection (optional)',
++    'reason.aria': 'Rejection reason',
+   }
+   return {
+     matched: pending,
+@@ -332,10 +346,36 @@ describe('ApprovalPanel', () => {
+     expect(screen.getByRole('group', { name: 'Approval details' })).toBeTruthy()
+     expect(props.renderSlot).not.toHaveBeenCalled()
+     fireEvent.click(screen.getByRole('button', { name: 'Reject' }))
++    expect(screen.getByRole('textbox', { name: 'Rejection reason' })).toBeTruthy()
++    fireEvent.click(screen.getByRole('button', { name: 'Confirm rejection' }))
+ 
+     await expect(pending.result).resolves.toBe('rejected')
+-    expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Reject' }).disabled).toBe(true)
+-    expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Allow once' }).disabled).toBe(true)
++    expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Confirm rejection' }).disabled).toBe(true)
++    expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Cancel' }).disabled).toBe(true)
++  })
++
++  it('submits a typed rejection reason, trimmed, with the rejection', async () => {
++    const pending = new PendingApproval(id('s1'), { toolName: 'bash' })
++    render(<ApprovalPanel {...panelProps(pending)} />)
++
++    fireEvent.click(screen.getByRole('button', { name: 'Reject' }))
++    fireEvent.change(screen.getByRole('textbox', { name: 'Rejection reason' }), {
++      target: { value: '  too risky  ' },
++    })
++    fireEvent.click(screen.getByRole('button', { name: 'Confirm rejection' }))
++
++    await expect(pending.result).resolves.toEqual({ outcome: 'rejected', reason: 'too risky' })
++  })
++
++  it('cancels the rejection confirmation without answering', async () => {
++    const pending = new PendingApproval(id('s1'), { toolName: 'bash' })
++    render(<ApprovalPanel {...panelProps(pending)} />)
++
++    fireEvent.click(screen.getByRole('button', { name: 'Reject' }))
++    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
++
++    expect(screen.getByRole('button', { name: 'Reject' })).toBeTruthy()
++    expect(screen.queryByRole('textbox', { name: 'Rejection reason' })).toBeNull()
+   })
+ 
+   it('renders correlated detail and returns allow-once', async () => {
+diff --git a/packages/extensions/tool-cordis/src/api-catalog.ts b/packages/extensions/tool-cordis/src/api-catalog.ts
+index 54d156e22114628e6f9ec4400f73f0ae49bcc8e5..02618244a3732772a873c497d64d5dd74030a747 100644
+--- a/packages/extensions/tool-cordis/src/api-catalog.ts
++++ b/packages/extensions/tool-cordis/src/api-catalog.ts
+@@ -3181,7 +3181,7 @@ export const EVENT_API: readonly EventApiEntry[] = [
+   {
+     name: 'approval/request',
+     mode: 'waterfall',
+-    signature: '\'approval/request\'( this: Scoped<Agent>, req: ApprovalRequestEvent, next: () => Promise<ApprovalOutcome>, ): Promise<ApprovalOutcome>',
++    signature: '\'approval/request\'( this: Scoped<Agent>, req: ApprovalRequestEvent, next: () => Promise<ApprovalAnswer>, ): Promise<ApprovalAnswer>',
+     summary: 'Ask composed answerers for one decision.',
+     description: 'Ask composed answerers for one decision. Return an outcome to claim the request or call `next()` to delegate. Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent.',
+     parameters: [{ name: 'req', description: 'pending approval request.' }],
+diff --git a/packages/interaction/user-approval/src/index.ts b/packages/interaction/user-approval/src/index.ts
+index 8a5f506bf1bacdf2ed04f778774245e6464ced6a..cbdc2341457305b51ce66c30a19576c80cdb318a 100644
+--- a/packages/interaction/user-approval/src/index.ts
++++ b/packages/interaction/user-approval/src/index.ts
+@@ -39,14 +39,63 @@ declare module '@deepseek-ai/dsh-session/types' {
+ }
+ 
+ import { ApprovalRequestId } from './types.ts'
+-import type { ApprovalOutcome, ApprovalRequestEvent } from './types.ts'
++import type { ApprovalAnswer, ApprovalOutcome, ApprovalRequestEvent } from './types.ts'
+ 
+ export { ApprovalRequestId } from './types.ts'
+-export type { ApprovalOutcome } from './types.ts'
++export type { ApprovalAnswer, ApprovalOutcome, ApprovalRejection } from './types.ts'
+ 
+ /** Every {@link ApprovalOutcome}, for runtime normalization of answerer returns. */
+ const OUTCOMES: readonly ApprovalOutcome[] = ['allowed-once', 'rejected', 'cancelled', 'unavailable']
+ 
++/** Hard ceiling for a human-supplied rejection reason accepted into audit and model context. */
++const MAX_REJECTION_REASON_LENGTH = 1000
++
++/**
++ * Coerce an untrusted rejection reason into a bounded, single-line, non-empty
++ * string, or `undefined` when nothing visible remains. Control characters are
++ * flattened to spaces so the reason cannot forge line boundaries in the model
++ * message or the durable audit record, and the length is capped so a rogue
++ * answerer cannot bloat the session log or the model context.
++ * @param value - whatever an answerer supplied as `reason`.
++ * @returns the sanitized reason, or `undefined` when it has no visible content.
++ */
++function sanitizeReason(value: unknown): string | undefined {
++  if (typeof value !== 'string') return undefined
++  let flattened = ''
++  for (const char of value) {
++    const code = char.codePointAt(0) ?? 0
++    flattened += code < 0x20 || (code >= 0x7f && code <= 0x9f) ? ' ' : char
++  }
++  const trimmed = flattened.trim()
++  if (trimmed.length === 0) return undefined
++  return trimmed.length > MAX_REJECTION_REASON_LENGTH
++    ? trimmed.slice(0, MAX_REJECTION_REASON_LENGTH)
++    : trimmed
++}
++
++/**
++ * Normalize an untrusted answerer return into the closed {@link ApprovalAnswer}
++ * vocabulary. A plain string must be a known outcome; a rich rejection must be
++ * exactly `{ outcome: 'rejected', reason?: string }` with a non-empty reason
++ * (an empty, non-string, or control-only reason is dropped; over-long reasons
++ * are truncated). Anything else fails closed.
++ * @param value - whatever an answerer resolved the waterfall with.
++ * @returns a normalized answer suitable for audit and outcome extraction.
++ */
++function normalizeAnswer(value: unknown): ApprovalAnswer {
++  if (typeof value === 'string') {
++    return (OUTCOMES as readonly string[]).includes(value) ? value as ApprovalOutcome : 'unavailable'
++  }
++  if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
++    const record = value as { outcome?: unknown; reason?: unknown }
++    if (record.outcome === 'rejected') {
++      const reason = sanitizeReason(record.reason)
++      return reason === undefined ? 'rejected' : { outcome: 'rejected', reason }
++    }
++  }
++  return 'unavailable'
++}
++
+ /**
+  * A session's approval policy — what happens to an {@link ApprovalService}
+  * ask BEFORE any interactive answerer sees it:
+@@ -221,8 +270,23 @@ export class ApprovalService extends Service {
+       ...req.callId !== undefined ? { callId: req.callId } : {},
+       ...req.reason !== undefined ? { reason: req.reason } : {},
+     })
+-    const outcome = await this.decide(req, session)
+-    session.append('approval/decided', { id, outcome })
++    const answer = await this.decide(req, session)
++    const outcome: ApprovalOutcome = typeof answer === 'string' ? answer : answer.outcome
++    const reason = typeof answer === 'string' ? undefined : answer.reason
++    session.append('approval/decided', {
++      id,
++      outcome,
++      ...reason !== undefined ? { reason } : {},
++    })
++    if (reason !== undefined) {
++      req.agent.inject(createUserMessage({
++        content: [{
++          type: 'text',
++          text: `The user rejected the approval request for tool "${req.toolName}" with the reason: "${reason}".`,
++        }],
++        source: { kind: 'plugin', plugin: 'user-approval' },
++      }))
++    }
+     return outcome
+   }
+ 
+@@ -255,9 +319,10 @@ export class ApprovalService extends Service {
+    * Dispatch the waterfall, contained and raced against the request signal.
+    * @param req - the borrowed public request.
+    * @param session - the request agent's session used for policy lookup.
+-   * @returns the normalized closed outcome.
++   * @returns the normalized {@link ApprovalAnswer}: a closed plain outcome, or a
++   *   rejection enriched with the user's optional reason.
+    */
+-  private async decide(req: ApprovalRequest, session: Session): Promise<ApprovalOutcome> {
++  private async decide(req: ApprovalRequest, session: Session): Promise<ApprovalAnswer> {
+     const signal = req.signal
+     if (signal?.aborted) return 'cancelled'
+     // The 'never' policy is decided HERE, before any dispatch: a listener
+@@ -270,21 +335,21 @@ export class ApprovalService extends Service {
+     // SYNCHRONOUSLY (before its first await) must land in the same rejection
+     // path as an async one — `Promise.resolve(call())` would let it escape
+     // the containment into the caller.
+-    const answer: Promise<ApprovalOutcome> = Promise.resolve().then(
++    const answer: Promise<ApprovalAnswer> = Promise.resolve().then(
+       () => this.ctx.waterfall(
+         scopeTarget(req.agent, req.agent), 'approval/request', req,
+-        () => Promise.resolve<ApprovalOutcome>('unavailable'),
++        () => Promise.resolve<ApprovalAnswer>('unavailable'),
+       ),
+     ).then(
+       // Normalize a rogue (non-vocabulary) answerer return to the fail-closed
+       // outcome instead of leaking it into callers' closed-union switches.
+-      outcome => OUTCOMES.includes(outcome) ? outcome : 'unavailable',
++      outcome => normalizeAnswer(outcome),
+       // A throwing answerer must fail the QUESTION closed, not the caller's
+       // tool call open — the seam contains its callbacks.
+       () => 'unavailable',
+     )
+     if (signal === undefined) return answer
+-    return await new Promise<ApprovalOutcome>((resolve) => {
++    return await new Promise<ApprovalAnswer>((resolve) => {
+       const onAbort = () => {
+         signal.removeEventListener('abort', onAbort)
+         resolve('cancelled')
+diff --git a/packages/interaction/user-approval/src/types.ts b/packages/interaction/user-approval/src/types.ts
+index c4b18260e9c73cfac1c249980d03214a78c011f6..644c9850a2c17d44ddf5d1bc77c047fda970a889 100644
+--- a/packages/interaction/user-approval/src/types.ts
++++ b/packages/interaction/user-approval/src/types.ts
+@@ -31,6 +31,23 @@ export function ApprovalRequestId(id: string): ApprovalRequestId {
+  */
+ export type ApprovalOutcome = 'allowed-once' | 'rejected' | 'cancelled' | 'unavailable'
+ 
++/**
++ * A rejection enriched with the reason the human supplied when they refused the
++ * action. Only an interactive (or equivalent machine) answerer returns this
++ * shape; the other outcomes stay plain strings. `reason` is omitted (or
++ * normalized away) when the human rejected without explaining why.
++ */
++export interface ApprovalRejection {
++  readonly outcome: 'rejected'
++  readonly reason?: string
++}
++
++/**
++ * What an approval answerer may resolve: a closed plain outcome, or a rejection
++ * carrying the user's optional reason.
++ */
++export type ApprovalAnswer = ApprovalOutcome | ApprovalRejection
++
+ declare module '@deepseek-ai/dsh-session/types' {
+   interface SessionEventMap {
+     /**
+@@ -55,6 +72,11 @@ declare module '@deepseek-ai/dsh-session/types' {
+     'approval/decided': {
+       id: ApprovalRequestId
+       outcome: ApprovalOutcome
++      /**
++       * Optional non-empty reason the human supplied with an explicit
++       * `'rejected'` outcome; absent for non-human or unexplained rejections.
++       */
++      reason?: string
+     }
+   }
+ }
+@@ -85,7 +107,7 @@ declare module '@deepseek-ai/cordis' {
+     'approval/request'(
+       this: Scoped<Agent>,
+       req: ApprovalRequestEvent,
+-      next: () => Promise<ApprovalOutcome>,
+-    ): Promise<ApprovalOutcome>
++      next: () => Promise<ApprovalAnswer>,
++    ): Promise<ApprovalAnswer>
+   }
+ }
+diff --git a/packages/interaction/user-approval/tests/approval.spec.ts b/packages/interaction/user-approval/tests/approval.spec.ts
+index 70e1abcf4e448c0c0c66c6e068b3d5cb2f6768af..885fbed6f903161c696436ac906f99caabff6b8b 100644
+--- a/packages/interaction/user-approval/tests/approval.spec.ts
++++ b/packages/interaction/user-approval/tests/approval.spec.ts
+@@ -15,9 +15,10 @@ import ApprovalService, { ApprovalOutcome, ApprovalRequest, setApprovalPolicy }
+  * turn-enclosure precondition); pass `seed` to stage idle/closed logs.
+  * Returns the recorded audit appends alongside the fake.
+  */
+-function fakeAgent(seed: Array<{ type: string }> = [{ type: 'turn/start' }, { type: 'user/message' }]): { agent: Agent; appended: Array<{ type: string; data: Record<string, unknown> }> } {
++function fakeAgent(seed: Array<{ type: string }> = [{ type: 'turn/start' }, { type: 'user/message' }]) {
+   const appended: Array<{ type: string; data: Record<string, unknown> }> = []
+   const events: Array<{ type: string; data?: Record<string, unknown> }> = [...seed]
++  const inject = vi.fn<Agent['inject']>()
+   const agent = {
+     session: {
+       get seq() { return events.length },
+@@ -29,8 +30,9 @@ function fakeAgent(seed: Array<{ type: string }> = [{ type: 'turn/start' }, { ty
+         return event as unknown as SessionEvent
+       },
+     },
++    inject,
+   } as unknown as Agent
+-  return { agent, appended }
++  return { agent, appended, inject }
+ }
+ 
+ async function mounted(): Promise<Context> {
+@@ -269,6 +271,37 @@ describe('ApprovalService.request', () => {
+     await expect(ctx.approval.request(requestOf(agent))).resolves.toBe('unavailable')
+   })
+ 
++  it('records a human rejection reason and feeds it back to the model', async () => {
++    const ctx = await mounted()
++    const { agent, appended, inject } = fakeAgent()
++    ctx.on('approval/request', () => Promise.resolve({ outcome: 'rejected', reason: 'too risky' } as const))
++
++    await expect(ctx.approval.request(requestOf(agent))).resolves.toBe('rejected')
++
++    const decided = appended[1]?.data
++    expect(decided).toMatchObject({ outcome: 'rejected', reason: 'too risky' })
++    expect(inject).toHaveBeenCalledOnce()
++    expect(inject.mock.calls[0]?.[0]).toMatchObject({
++      content: [{
++        type: 'text',
++        text: 'The user rejected the approval request for tool "echo" with the reason: "too risky".',
++      }],
++      source: { kind: 'plugin', plugin: 'user-approval' },
++    })
++  })
++
++  it('drops an empty rejection reason and does not feed the model', async () => {
++    const ctx = await mounted()
++    const { agent, appended, inject } = fakeAgent()
++    ctx.on('approval/request', () => Promise.resolve({ outcome: 'rejected', reason: '   ' } as const))
++
++    await expect(ctx.approval.request(requestOf(agent))).resolves.toBe('rejected')
++
++    expect(appended[1]?.data).toMatchObject({ outcome: 'rejected' })
++    expect(appended[1]?.data).not.toHaveProperty('reason')
++    expect(inject).not.toHaveBeenCalled()
++  })
++
+   it('settles cancelled immediately on an already-aborted signal without asking anyone', async () => {
+     const ctx = await mounted()
+     const { agent, appended } = fakeAgent()
+diff --git a/packages/session/session-format-v0-to-v1/src/dispositions.ts b/packages/session/session-format-v0-to-v1/src/dispositions.ts
+index 24702e8bb11eab013d8e22b2653d1f690067dcb7..f760ea785b427f473d89a3bb879e076ebf09c255 100644
+--- a/packages/session/session-format-v0-to-v1/src/dispositions.ts
++++ b/packages/session/session-format-v0-to-v1/src/dispositions.ts
+@@ -41,7 +41,7 @@ export const RELEASED_V0_EVENT_DISPOSITIONS: Readonly<Record<string, ReleasedV0P
+     ['removedCount', 'outcome'],
+   ),
+   'approval/asked': disposition(['id', 'toolName'], ['callId', 'reason']),
+-  'approval/decided': disposition(['id', 'outcome']),
++  'approval/decided': disposition(['id', 'outcome'], ['reason']),
+   'approval/policy': disposition(['policy'], ['source']),
+   'assistant/chunk': disposition(['turn', 'step', 'chunk']),
+   'assistant/message': disposition(
+diff --git a/packages/session/session-format-v0-to-v1/src/payload-validation.ts b/packages/session/session-format-v0-to-v1/src/payload-validation.ts
+index 5b19f7cc6668d8e9bfc1c75806d3898132eb94ee..ba85bc19f968d289eaa67d3e0a3a578093608cdb 100644
+--- a/packages/session/session-format-v0-to-v1/src/payload-validation.ts
++++ b/packages/session/session-format-v0-to-v1/src/payload-validation.ts
+@@ -38,6 +38,7 @@ export function assertReleasedPayloadSemantics(event: SessionFormatEvent, versio
+     case 'approval/decided':
+       nonEmptyString(data['id'], `${label} id`)
+       literalValue(data['outcome'], ['allowed-once', 'rejected', 'cancelled', 'unavailable'], `${label} outcome`)
++      if (data['reason'] !== undefined) nonEmptyString(data['reason'], `${label} reason`)
+       return
+     case 'approval/policy':
+       literalValue(data['policy'], ['ask', 'never'], `${label} policy`)
+diff --git a/packages/session/session-format-v0-to-v1/tests/validation.spec.ts b/packages/session/session-format-v0-to-v1/tests/validation.spec.ts
+index 209576c63664663f2611a22169b25cc6ce14ffdf..08c43b22ba5e72d1347bfcab2d45b596917bba93 100644
+--- a/packages/session/session-format-v0-to-v1/tests/validation.spec.ts
++++ b/packages/session/session-format-v0-to-v1/tests/validation.spec.ts
+@@ -37,7 +37,7 @@ const validPayloads: Readonly<Record<string, SessionFormatJsonValue>> = {
+   'agent-preset/selected': { agentPreset: 'default' },
+   'agent/inbox/spliced': { target: 'next-turn', start: 0, inserted: [userMessage] },
+   'approval/asked': { id: 'approval-1', toolName: 'bash', callId: 'call-1', reason: 'needed' },
+-  'approval/decided': { id: 'approval-1', outcome: 'allowed-once' },
++  'approval/decided': { id: 'approval-1', outcome: 'rejected', reason: 'too risky' },
+   'approval/policy': { policy: 'ask', source: 'delegation' },
+   'assistant/chunk': { turn: 1, step: 0, chunk: { type: 'text-delta', index: 0, text: 'x' } },
+   'assistant/message': { turn: 1, step: 0, message: assistantMessage, usage: { inputTokens: 1, outputTokens: 1 } },
+diff --git a/scripts/gen-cordis-catalog.ts b/scripts/gen-cordis-catalog.ts
+index ed81fccc1fa23277bf13e09622cd3ebac792941e..159958b01e16907853ccbefca0344200aecf3732 100644
+--- a/scripts/gen-cordis-catalog.ts
++++ b/scripts/gen-cordis-catalog.ts
+@@ -362,8 +362,10 @@ export const LINK_MAP: Readonly<Record<string, string>> = {
+   SessionStartSource: 'core.md',
+   SessionLogSnapshot: 'session-query.md',
+   SessionSurfaceSnapshot: 'session-query.md',
++  ApprovalAnswer: 'approval.md',
+   ApprovalOutcome: 'approval.md',
+   ApprovalPolicy: 'approval.md',
++  ApprovalRejection: 'approval.md',
+   ApprovalRequest: 'approval.md',
+   ApprovalRequestEvent: 'approval.md',
+   ApprovalService: 'approval.md',
